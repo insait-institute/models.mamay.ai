@@ -1,0 +1,96 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import Headline from '~/components/ui/Headline.astro';
+import LinkCard from '~/components/ui/LinkCard.astro';
+
+import imgRitranslation from '~/assets/images/research/ritranslation.png';
+import imgCatastrophicForgetting from '~/assets/images/research/arxiv-catastrophic-forgetting.png';
+import imgMamayHf from '~/assets/images/icon-512x512.png';
+
+const metadata = {
+  title: 'Research',
+};
+
+const researchEn = [
+  {
+    title: 'MamayLM-Gemma-3-27B-IT on HuggingFace',
+    description:
+      'INSAIT\'s open MamayLM v2.0 model card on HuggingFace — weights, evals, and usage instructions for the Ukrainian-language Gemma-3 27B variant.',
+    href: 'https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1',
+    image: imgMamayHf,
+    source: 'HuggingFace',
+  },
+  {
+    title: 'Mitigating Catastrophic Forgetting in Language Transfer via Model Merging',
+    description:
+      'Proposes Branch-and-Merge (BaM), a technique that iteratively merges multiple models fine-tuned on subsets of training data to prevent catastrophic forgetting when adapting LLMs to new languages — the same family of methods used for MamayLM.',
+    href: 'https://arxiv.org/abs/2407.08699',
+    image: imgCatastrophicForgetting,
+    source: 'ACL',
+  },
+  {
+    title: 'Recovered in Translation: Efficient Pipeline for Automated Translation of Benchmarks and Datasets',
+    description:
+      'A fully automated framework for scalable, high-quality translation of datasets and benchmarks into 8 Eastern/Southern European languages using test-time compute scaling strategies.',
+    href: 'https://ritranslation.insait.ai/',
+    image: imgRitranslation,
+    source: 'arXiv',
+  },
+];
+
+const researchUk = [
+  {
+    title: 'MamayLM-Gemma-3-27B-IT на HuggingFace',
+    description:
+      'Сторінка моделі MamayLM v2.0 від INSAIT на HuggingFace — ваги, оцінки та інструкції з використання україномовного варіанту Gemma-3 27B.',
+    href: 'https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1',
+    image: imgMamayHf,
+    source: 'HuggingFace',
+  },
+  {
+    title: 'Mitigating Catastrophic Forgetting in Language Transfer via Model Merging',
+    description:
+      'Запропоновано Branch-and-Merge (BaM) — техніку ітеративного злиття кількох моделей, тонко настроєних на підмножинах тренувальних даних, щоб уникнути катастрофічного забування при адаптації LLM до нових мов. Це той самий клас методів, що використовується для MamayLM.',
+    href: 'https://arxiv.org/abs/2407.08699',
+    image: imgCatastrophicForgetting,
+    source: 'ACL',
+  },
+  {
+    title: 'Recovered in Translation: Efficient Pipeline for Automated Translation of Benchmarks and Datasets',
+    description:
+      'Повністю автоматизований фреймворк для масштабного високоякісного перекладу датасетів і бенчмарків на 8 східно/південноєвропейських мов завдяки стратегіям масштабування обчислень під час інференсу.',
+    href: 'https://ritranslation.insait.ai/',
+    image: imgRitranslation,
+    source: 'arXiv',
+  },
+];
+---
+
+<Layout metadata={metadata}>
+  <!-- Research papers -->
+  <WidgetWrapper containerClass="max-w-7xl mx-auto">
+    <div data-lang-en style="display:none">
+      <Headline
+        tagline="About the Models"
+        title="Research Publications"
+      />
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {researchEn.map((item) => (
+          <LinkCard {...item} />
+        ))}
+      </div>
+    </div>
+    <div data-lang-uk>
+      <Headline
+        tagline="Про моделі"
+        title="Наукові публікації"
+      />
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {researchUk.map((item) => (
+          <LinkCard {...item} />
+        ))}
+      </div>
+    </div>
+  </WidgetWrapper>
+</Layout>

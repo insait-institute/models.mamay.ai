@@ -1,0 +1,68 @@
+site:
+  name: MamayLM
+  site: 'https://insait-institute.github.io'
+  base: '/models.mamay.ai'
+  trailingSlash: false
+
+# Default SEO metadata
+metadata:
+  title:
+    default: MamayLM
+    template: '%s — MamayLM'
+  description: 'State-of-the-art generative AI for the Ukrainian language, created by INSAIT for Ukrainian users, institutions, and organizations.'
+  robots:
+    index: true
+    follow: true
+  openGraph:
+    site_name: MamayLM
+    images:
+      - url: '~/assets/images/default.png'
+        width: 1920
+        height: 1080
+    type: website
+  twitter:
+    cardType: summary_large_image
+
+i18n:
+  language: en
+  textDirection: ltr
+
+apps:
+  blog:
+    isEnabled: true
+    postsPerPage: 6
+
+    post:
+      isEnabled: true
+      permalink: '/blog/%slug%'
+      robots:
+        index: true
+
+    list:
+      isEnabled: true
+      pathname: 'blog'
+      robots:
+        index: true
+
+    category:
+      isEnabled: true
+      pathname: 'category'
+      robots:
+        index: true
+
+    tag:
+      isEnabled: true
+      pathname: 'tag'
+      robots:
+        index: true
+
+    isRelatedPostsEnabled: true
+    relatedPostsCount: 4
+
+analytics:
+  vendors:
+    googleAnalytics:
+      id: null
+
+ui:
+  theme: 'system'

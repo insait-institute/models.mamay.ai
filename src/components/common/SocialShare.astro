@@ -1,0 +1,56 @@
+---
+import { Icon } from 'astro-icon/components';
+
+export interface Props {
+  text: string;
+  url: string | URL;
+  class?: string;
+}
+
+const { text, url, class: className = 'inline-block' } = Astro.props;
+
+const btnClass = 'text-muted dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center';
+const iconClass = 'w-5 h-5';
+---
+
+<div class={className}>
+  <span class="align-super font-bold text-slate-500 dark:text-slate-400">
+    <span data-lang-en style="display:none">Share:</span>
+    <span data-lang-uk>Сподели:</span>
+  </span>
+  <button
+    class={btnClass}
+    title="Twitter Share"
+    data-aw-social-share="twitter"
+    data-aw-url={url}
+    data-aw-text={text}
+    ><Icon name="tabler:brand-x" class={iconClass} />
+  </button>
+  <button class={btnClass} title="Facebook Share" data-aw-social-share="facebook" data-aw-url={url}
+    ><Icon name="tabler:brand-facebook" class={iconClass} />
+  </button>
+  <button
+    class={btnClass}
+    title="Linkedin Share"
+    data-aw-social-share="linkedin"
+    data-aw-url={url}
+    data-aw-text={text}
+    ><Icon name="tabler:brand-linkedin" class={iconClass} />
+  </button>
+  <button
+    class={btnClass}
+    title="Whatsapp Share"
+    data-aw-social-share="whatsapp"
+    data-aw-url={url}
+    data-aw-text={text}
+    ><Icon name="tabler:brand-whatsapp" class={iconClass} />
+  </button>
+  <button
+    class={btnClass}
+    title="Email Share"
+    data-aw-social-share="mail"
+    data-aw-url={url}
+    data-aw-text={text}
+    ><Icon name="tabler:mail" class={iconClass} />
+  </button>
+</div>

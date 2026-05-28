@@ -1,0 +1,514 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import { Code } from 'astro:components';
+
+
+const metadata = {
+  title: 'API Documentation',
+};
+
+const apiServer = 'https://api.mamay.ai';
+const apiModel = 'mamaylm-gemma-3-27b-fp8';
+const apiAccessHref = 'mailto:chat.mamay@insait.ai?subject=API%20Access';
+
+const proseClasses = 'prose prose-md lg:prose-xl dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-a:text-primary dark:prose-a:text-blue-400 prose-img:rounded-md prose-img:shadow-lg prose-headings:scroll-mt-[180px] prose-li:my-0 prose-code:before:content-none prose-code:after:content-none prose-h2:border-t prose-h2:border-gray-200 prose-h2:dark:border-slate-700 prose-h2:pt-8 prose-h2:mt-12 prose-h2:text-2xl prose-h2:lg:text-3xl prose-h3:text-lg prose-h3:lg:text-xl prose-h3:text-muted prose-h3:dark:text-slate-400';
+---
+
+<Layout metadata={metadata}>
+  <section class="py-8 sm:py-16 lg:py-20 mx-auto">
+
+    <!-- EN -->
+    <div data-lang-en style="display:none">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 mb-8">
+        <h1 class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter font-heading dark:text-gray-200">API Documentation</h1>
+        <p class="mt-4 text-xl text-muted dark:text-slate-400">Everything you need to integrate MamayLM into your application.</p>
+
+        <div class="mt-4 p-4 rounded-lg bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-sm text-gray-700 dark:text-slate-300">
+          Don't have an API key? <a href={apiAccessHref} class="font-semibold underline hover:text-gray-900 dark:hover:text-slate-100">Request access</a> and your key will be provisioned.
+        </div>
+
+        <nav class="mt-6 flex flex-wrap gap-2">
+          <a href="#getting-started" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Getting Started</a>
+          <a href="#chat-completions" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Chat</a>
+          <a href="#streaming" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Streaming</a>
+          <a href="#tool-calling" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Tool Calling</a>
+          <a href="#vision" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Vision</a>
+          <a href="#model-info" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Model Info</a>
+        </nav>
+      </div>
+
+      <div class={"mx-auto px-6 sm:px-6 max-w-3xl " + proseClasses}>
+
+        <h2 id="getting-started">Getting Started</h2>
+        <p>The MamayLM API is fully compatible with the <strong>OpenAI SDK</strong>. Any library or tool that supports the OpenAI Chat Completions API works with MamayLM.</p>
+
+        <table>
+          <tbody>
+            <tr><td><strong>Endpoint</strong></td><td><code>{apiServer}/v1</code></td></tr>
+            <tr><td><strong>Model</strong></td><td><code>{apiModel}</code></td></tr>
+            <tr><td><strong>Auth</strong></td><td><code>Authorization: Bearer YOUR_API_KEY</code></td></tr>
+            <tr><td><strong>Context</strong></td><td>Up to 65,536 tokens</td></tr>
+            <tr><td><strong>Quantization</strong></td><td>FP8 dynamic (same quality, 2x faster)</td></tr>
+          </tbody>
+        </table>
+
+        <p>Install the OpenAI Python SDK:</p>
+        <Code code="pip install openai" lang="bash" theme="github-dark" />
+
+        <h2 id="chat-completions">Chat Completions</h2>
+
+        <h3>Python</h3>
+        <Code code={`from openai import OpenAI
+
+client = OpenAI(
+    base_url="${apiServer}/v1",
+    api_key="YOUR_API_KEY",
+)
+
+response = client.chat.completions.create(
+    model="${apiModel}",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Коли був заснований Київський університет?"}
+    ],
+    max_tokens=16384,
+    temperature=0.2,
+)
+print(response.choices[0].message.content)`} lang="python" theme="github-dark" />
+
+        <h3>curl</h3>
+        <Code code={`curl -X POST ${apiServer}/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "${apiModel}",
+    "messages": [
+      {"role": "user", "content": "Коли був заснований Київський університет?"}
+    ],
+    "max_tokens": 16384,
+    "temperature": 0.2
+  }'`} lang="bash" theme="github-dark" />
+
+        <h2 id="streaming">Streaming</h2>
+        <p>Set <code>stream=True</code> to receive tokens as they are generated:</p>
+        <Code code={`stream = client.chat.completions.create(
+    model="${apiModel}",
+    messages=[
+        {"role": "user", "content": "Коли був заснований Київський університет?"}
+    ],
+    max_tokens=1024,
+    stream=True,
+)
+
+for chunk in stream:
+    delta = chunk.choices[0].delta
+    if delta.content:
+        print(delta.content, end="", flush=True)`} lang="python" theme="github-dark" />
+
+        <h2 id="tool-calling">Tool Calling</h2>
+        <p>MamayLM supports OpenAI-compatible tool calling. Define tools as JSON schemas, and the model will decide when to call them.</p>
+
+        <h3>1. Define tools and send request</h3>
+        <Code code={`tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get the current weather for a city",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "city": {"type": "string", "description": "City name"},
+                    "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}
+                },
+                "required": ["city"]
+            }
+        }
+    }
+]
+
+response = client.chat.completions.create(
+    model="${apiModel}",
+    messages=[
+        {"role": "user", "content": "What's the weather in Kyiv?"}
+    ],
+    tools=tools,
+    tool_choice="auto",
+)`} lang="python" theme="github-dark" />
+
+        <h3>2. Check for tool calls</h3>
+        <Code code={`message = response.choices[0].message
+
+if message.tool_calls:
+    for tool_call in message.tool_calls:
+        print(f"Function: {tool_call.function.name}")
+        print(f"Arguments: {tool_call.function.arguments}")
+else:
+    print(message.content)`} lang="python" theme="github-dark" />
+
+        <h3>3. Send tool results back</h3>
+        <Code code={`import json
+
+# After calling your function with the model's arguments:
+tool_result = {"temperature": 22, "unit": "celsius", "condition": "sunny"}
+
+response = client.chat.completions.create(
+    model="${apiModel}",
+    messages=[
+        {"role": "user", "content": "What's the weather in Kyiv?"},
+        message,  # the assistant message with tool_calls
+        {
+            "role": "tool",
+            "tool_call_id": message.tool_calls[0].id,
+            "content": json.dumps(tool_result),
+        }
+    ],
+    tools=tools,
+)
+print(response.choices[0].message.content)`} lang="python" theme="github-dark" />
+
+        <p><strong>Supported <code>tool_choice</code> values:</strong></p>
+        <ul>
+          <li><code>"auto"</code> &mdash; model decides whether to call a tool (default)</li>
+          <li><code>"required"</code> &mdash; model must call at least one tool</li>
+          <li><code>"none"</code> &mdash; tool calling disabled for this request</li>
+        </ul>
+
+        <h2 id="vision">Vision</h2>
+        <p>MamayLM v2.0 is multimodal and can understand images. Send images as base64 data URLs.</p>
+
+        <h3>Base64 image</h3>
+        <Code code={`import base64
+
+with open("photo.jpg", "rb") as f:
+    b64 = base64.b64encode(f.read()).decode()
+
+response = client.chat.completions.create(
+    model="${apiModel}",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "Describe this image."},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{b64}"}
+                }
+            ]
+        }
+    ],
+    max_tokens=1024,
+)`} lang="python" theme="github-dark" />
+
+        <h2 id="model-info">Model Information</h2>
+        <ul>
+          <li><a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1">MamayLM-Gemma-3-27B-IT</a> (based on <a href="https://huggingface.co/google/gemma-3-27b-it">gemma-3-27b-it</a>)</li>
+          <li>FP8 dynamic quantization &mdash; uses about half the memory for weights compared to BF16, with minimal quality loss</li>
+          <li>65,536 tokens context window (the base model supports up to 131,072)</li>
+          <li><strong>Capabilities:</strong>
+            <ul class="list-['◦']">
+              <li>Text generation</li>
+              <li>Instruction following</li>
+              <li>Tool calling</li>
+              <li>Vision (image understanding)</li>
+              <li>Multi-turn conversations</li>
+            </ul>
+          </li>
+          <li><strong>Read more about the model on the</strong> <a href="/blog/mamaylm-v2-release-en">MamayLM v2.0 blog</a></li>
+        </ul>
+
+        <h2 id="notes">Notes</h2>
+        <ul>
+          <li>The API is OpenAI-compatible. Any SDK or framework that supports OpenAI (LangChain, LlamaIndex, etc.) works with MamayLM by changing <code>base_url</code> and <code>api_key</code>.</li>
+          <li>To request API access, write to <a href={apiAccessHref}>chat.mamay@insait.ai</a>.</li>
+          <li>To run the model locally, see the <a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1">HuggingFace model card</a>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- UK -->
+    <div data-lang-uk>
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 mb-8">
+        <h1 class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter font-heading dark:text-gray-200">Документація API</h1>
+        <p class="mt-4 text-xl text-muted dark:text-slate-400">Усе необхідне для інтеграції MamayLM у ваш застосунок.</p>
+
+        <div class="mt-4 p-4 rounded-lg bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-sm text-gray-700 dark:text-slate-300">
+          Не маєте API-ключа? <a href={apiAccessHref} class="font-semibold underline hover:text-gray-900 dark:hover:text-slate-100">Подайте запит на доступ</a> — і ключ буде надано.
+        </div>
+
+        <nav class="mt-6 flex flex-wrap gap-2">
+          <a href="#getting-started-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Початок</a>
+          <a href="#chat-completions-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Чат</a>
+          <a href="#streaming-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Стрімінг</a>
+          <a href="#tool-calling-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Функції</a>
+          <a href="#vision-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Зображення</a>
+          <a href="#model-info-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Модель</a>
+        </nav>
+      </div>
+
+      <div class={"mx-auto px-6 sm:px-6 max-w-3xl " + proseClasses}>
+
+        <h2 id="getting-started-uk">Початок</h2>
+        <p>API MamayLM повністю сумісний із <strong>OpenAI SDK</strong>. Будь-яка бібліотека чи інструмент, що підтримує OpenAI Chat Completions API, працює з MamayLM.</p>
+
+        <table>
+          <tbody>
+            <tr><td><strong>Адреса</strong></td><td><code>{apiServer}/v1</code></td></tr>
+            <tr><td><strong>Модель</strong></td><td><code>{apiModel}</code></td></tr>
+            <tr><td><strong>Автентифікація</strong></td><td><code>Authorization: Bearer YOUR_API_KEY</code></td></tr>
+            <tr><td><strong>Контекст</strong></td><td>До 65 536 токенів</td></tr>
+            <tr><td><strong>Квантизація</strong></td><td>FP8 dynamic</td></tr>
+          </tbody>
+        </table>
+
+        <p>Встановіть OpenAI Python SDK:</p>
+        <Code code="pip install openai" lang="bash" theme="github-dark" />
+
+        <h2 id="chat-completions-uk">Чат</h2>
+
+        <h3>Python</h3>
+        <Code code={`from openai import OpenAI
+
+client = OpenAI(
+    base_url="${apiServer}/v1",
+    api_key="YOUR_API_KEY",
+)
+
+response = client.chat.completions.create(
+    model="${apiModel}",
+    messages=[
+        {"role": "system", "content": "Ти корисний асистент."},
+        {"role": "user", "content": "Коли був заснований Київський університет?"}
+    ],
+    max_tokens=16384,
+    temperature=0.2,
+)
+print(response.choices[0].message.content)`} lang="python" theme="github-dark" />
+
+        <h3>curl</h3>
+        <Code code={`curl -X POST ${apiServer}/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{
+    "model": "${apiModel}",
+    "messages": [
+      {"role": "user", "content": "Коли був заснований Київський університет?"}
+    ],
+    "max_tokens": 16384,
+    "temperature": 0.2
+  }'`} lang="bash" theme="github-dark" />
+
+        <h2 id="streaming-uk">Стрімінг</h2>
+        <p>Встановіть <code>stream=True</code>, щоб отримувати токени в реальному часі:</p>
+        <Code code={`stream = client.chat.completions.create(
+    model="${apiModel}",
+    messages=[
+        {"role": "user", "content": "Коли був заснований Київський університет?"}
+    ],
+    max_tokens=1024,
+    stream=True,
+)
+
+for chunk in stream:
+    delta = chunk.choices[0].delta
+    if delta.content:
+        print(delta.content, end="", flush=True)`} lang="python" theme="github-dark" />
+
+        <h2 id="tool-calling-uk">Виклик функцій</h2>
+        <p>MamayLM підтримує виклик функцій, сумісний із OpenAI. Опишіть інструменти у вигляді JSON-схем — модель сама вирішить, коли їх викликати.</p>
+
+        <h3>1. Опис інструментів і запит</h3>
+        <Code code={`tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Отримати поточну погоду для міста",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "city": {"type": "string", "description": "Назва міста"},
+                    "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}
+                },
+                "required": ["city"]
+            }
+        }
+    }
+]
+
+response = client.chat.completions.create(
+    model="${apiModel}",
+    messages=[
+        {"role": "user", "content": "Яка погода в Києві?"}
+    ],
+    tools=tools,
+    tool_choice="auto",
+)`} lang="python" theme="github-dark" />
+
+        <h3>2. Перевірка викликів</h3>
+        <Code code={`message = response.choices[0].message
+
+if message.tool_calls:
+    for tool_call in message.tool_calls:
+        print(f"Функція: {tool_call.function.name}")
+        print(f"Аргументи: {tool_call.function.arguments}")
+else:
+    print(message.content)`} lang="python" theme="github-dark" />
+
+        <h3>3. Надсилання результатів</h3>
+        <Code code={`import json
+
+# Після виклику вашої функції з аргументами моделі:
+tool_result = {"temperature": 22, "unit": "celsius", "condition": "sunny"}
+
+response = client.chat.completions.create(
+    model="${apiModel}",
+    messages=[
+        {"role": "user", "content": "Яка погода в Києві?"},
+        message,  # повідомлення асистента з tool_calls
+        {
+            "role": "tool",
+            "tool_call_id": message.tool_calls[0].id,
+            "content": json.dumps(tool_result),
+        }
+    ],
+    tools=tools,
+)
+print(response.choices[0].message.content)`} lang="python" theme="github-dark" />
+
+        <p><strong>Підтримувані значення <code>tool_choice</code>:</strong></p>
+        <ul>
+          <li><code>"auto"</code> &mdash; модель сама вирішує, чи викликати інструмент (за замовчуванням)</li>
+          <li><code>"required"</code> &mdash; модель має викликати хоча б один інструмент</li>
+          <li><code>"none"</code> &mdash; виклик інструментів вимкнено для цього запиту</li>
+        </ul>
+
+        <h2 id="vision-uk">Зображення</h2>
+        <p>MamayLM v2.0 є мультимодальною та розуміє зображення. Надсилайте їх як base64 data URL.</p>
+
+        <h3>Зображення у base64</h3>
+        <Code code={`import base64
+
+with open("photo.jpg", "rb") as f:
+    b64 = base64.b64encode(f.read()).decode()
+
+response = client.chat.completions.create(
+    model="${apiModel}",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "Опиши це зображення."},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{b64}"}
+                }
+            ]
+        }
+    ],
+    max_tokens=1024,
+)`} lang="python" theme="github-dark" />
+
+        <h2 id="model-info-uk">Інформація про модель</h2>
+        <ul>
+          <li><a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1">MamayLM-Gemma-3-27B-IT</a> (на основі <a href="https://huggingface.co/google/gemma-3-27b-it">gemma-3-27b-it</a>)</li>
+          <li>FP8 dynamic квантизація — використовує приблизно вдвічі менше пам’яті для ваг порівняно з BF16, з мінімальною втратою якості</li>
+          <li>Контекст 65 536 токенів (базова модель підтримує до 131 072)</li>
+          <li><strong>Можливості:</strong>
+            <ul class="list-['◦']">
+              <li>Генерація тексту</li>
+              <li>Виконання інструкцій</li>
+              <li>Виклик функцій</li>
+              <li>Розуміння зображень</li>
+              <li>Багатораундові діалоги</li>
+            </ul>
+          </li>
+          <li><strong>Дізнайтеся більше у нашому </strong> <a href="/blog/mamaylm-v2-release-uk">блозі про MamayLM v2.0</a></li>
+        </ul>
+
+        <h2 id="notes-uk">Примітки</h2>
+        <ul>
+          <li>API повністю сумісний з OpenAI. Будь-який SDK або фреймворк, що підтримує OpenAI (LangChain, LlamaIndex тощо), працює з MamayLM — достатньо змінити <code>base_url</code> та <code>api_key</code>.</li>
+          <li>Щоб отримати доступ до API, напишіть на <a href={apiAccessHref}>chat.mamay@insait.ai</a>.</li>
+          <li>Для локального запуску моделі дивіться <a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1">сторінку моделі на HuggingFace</a>.</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+</Layout>
+
+<style is:global>
+  .prose h3 {
+    margin-top: 1.5rem !important;
+    margin-bottom: 0 !important;
+  }
+  .prose pre {
+    margin-top: 0.5rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+  .prose p {
+    margin-bottom: 0.5rem !important;
+  }
+  .prose :not(pre) > code {
+    background: #f1f5f9 !important;
+    padding: 0.15rem 0.4rem !important;
+    border-radius: 0.25rem !important;
+    font-size: 0.875em !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+  .dark .prose :not(pre) > code {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+  }
+  .code-block-wrapper {
+    position: relative;
+  }
+  .code-block-wrapper .copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    color: #a0aec0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .code-block-wrapper:hover .copy-btn {
+    opacity: 1;
+  }
+  .code-block-wrapper .copy-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+  }
+</style>
+
+<script>
+  document.querySelectorAll('pre').forEach((pre) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrapper';
+    pre.parentNode?.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+
+    const isUk = pre.closest('[data-lang-uk]') !== null;
+    const labelCopy = isUk ? 'Копіювати' : 'Copy';
+    const labelDone = isUk ? 'Скопійовано!' : 'Copied!';
+
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = labelCopy;
+    btn.addEventListener('click', async () => {
+      const code = pre.querySelector('code');
+      await navigator.clipboard.writeText(code?.textContent ?? pre.textContent ?? '');
+      btn.textContent = labelDone;
+      setTimeout(() => { btn.textContent = labelCopy; }, 1500);
+    });
+    wrapper.appendChild(btn);
+  });
+</script>
