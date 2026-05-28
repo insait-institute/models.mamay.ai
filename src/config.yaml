@@ -1,7 +1,7 @@
 site:
   name: MamayLM
-  site: 'https://insait-institute.github.io'
-  base: '/models.mamay.ai'
+  site: 'https://verbose-broccoli-4qw8p7o.pages.github.io'
+  base: '/'
   trailingSlash: false
 
 # Default SEO metadata
