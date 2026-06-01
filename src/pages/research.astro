@@ -6,7 +6,14 @@ import LinkCard from '~/components/ui/LinkCard.astro';
 
 import imgRitranslation from '~/assets/images/research/ritranslation.png';
 import imgCatastrophicForgetting from '~/assets/images/research/arxiv-catastrophic-forgetting.png';
-import imgMamayHf from '~/assets/images/icon-512x512.png';
+
+import imgBlogV10 from '~/assets/images/blogs/mamaylm-v10.png';
+import imgBlogV01 from '~/assets/images/blogs/mamaylm-v01-hf.png';
+
+import imgDouLaunch from '~/assets/images/news/dou-launch.jpg';
+import imgDouLeaderboard from '~/assets/images/news/dou-leaderboard.jpg';
+import imgMintsyfra from '~/assets/images/news/thedigital-ministry.png';
+import imgPodcast from '~/assets/images/news/podcast-youtube.jpg';
 
 const metadata = {
   title: 'Research',
@@ -14,20 +21,12 @@ const metadata = {
 
 const researchEn = [
   {
-    title: 'MamayLM-Gemma-3-27B-IT on HuggingFace',
-    description:
-      'INSAIT\'s open MamayLM v2.0 model card on HuggingFace — weights, evals, and usage instructions for the Ukrainian-language Gemma-3 27B variant.',
-    href: 'https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1',
-    image: imgMamayHf,
-    source: 'HuggingFace',
-  },
-  {
     title: 'Mitigating Catastrophic Forgetting in Language Transfer via Model Merging',
     description:
-      'Proposes Branch-and-Merge (BaM), a technique that iteratively merges multiple models fine-tuned on subsets of training data to prevent catastrophic forgetting when adapting LLMs to new languages — the same family of methods used for MamayLM.',
+      'Proposes Branch-and-Merge (BaM), a technique that iteratively merges multiple models fine-tuned on subsets of training data to prevent catastrophic forgetting when adapting LLMs to new languages — the method family behind MamayLM.',
     href: 'https://arxiv.org/abs/2407.08699',
     image: imgCatastrophicForgetting,
-    source: 'ACL',
+    source: 'EMNLP',
   },
   {
     title: 'Recovered in Translation: Efficient Pipeline for Automated Translation of Benchmarks and Datasets',
@@ -35,26 +34,18 @@ const researchEn = [
       'A fully automated framework for scalable, high-quality translation of datasets and benchmarks into 8 Eastern/Southern European languages using test-time compute scaling strategies.',
     href: 'https://ritranslation.insait.ai/',
     image: imgRitranslation,
-    source: 'arXiv',
+    source: 'ACL Findings',
   },
 ];
 
 const researchUk = [
   {
-    title: 'MamayLM-Gemma-3-27B-IT на HuggingFace',
-    description:
-      'Сторінка моделі MamayLM v2.0 від INSAIT на HuggingFace — ваги, оцінки та інструкції з використання україномовного варіанту Gemma-3 27B.',
-    href: 'https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1',
-    image: imgMamayHf,
-    source: 'HuggingFace',
-  },
-  {
     title: 'Mitigating Catastrophic Forgetting in Language Transfer via Model Merging',
     description:
-      'Запропоновано Branch-and-Merge (BaM) — техніку ітеративного злиття кількох моделей, тонко настроєних на підмножинах тренувальних даних, щоб уникнути катастрофічного забування при адаптації LLM до нових мов. Це той самий клас методів, що використовується для MamayLM.',
+      'Запропоновано Branch-and-Merge (BaM) — техніку ітеративного злиття кількох моделей, тонко настроєних на підмножинах тренувальних даних, щоб уникнути катастрофічного забування при адаптації LLM до нових мов. Саме цей клас методів лежить в основі MamayLM.',
     href: 'https://arxiv.org/abs/2407.08699',
     image: imgCatastrophicForgetting,
-    source: 'ACL',
+    source: 'EMNLP',
   },
   {
     title: 'Recovered in Translation: Efficient Pipeline for Automated Translation of Benchmarks and Datasets',
@@ -62,7 +53,115 @@ const researchUk = [
       'Повністю автоматизований фреймворк для масштабного високоякісного перекладу датасетів і бенчмарків на 8 східно/південноєвропейських мов завдяки стратегіям масштабування обчислень під час інференсу.',
     href: 'https://ritranslation.insait.ai/',
     image: imgRitranslation,
-    source: 'arXiv',
+    source: 'ACL Findings',
+  },
+];
+
+const blogsEn = [
+  {
+    title: 'MamayLM v1.0 — Release Blog',
+    description:
+      'A deep dive into MamayLM v1.0: the training recipe, benchmarks, and capabilities of the strongest open Ukrainian-adapted LLM at the time of its release.',
+    href: 'https://blog.mamaylm.insait.ai/',
+    image: imgBlogV10,
+    source: 'Blog',
+  },
+  {
+    title: 'Introducing MamayLM on HuggingFace',
+    description:
+      'The original MamayLM announcement on HuggingFace — introducing the first open Ukrainian-adapted Gemma model and its evaluation.',
+    href: 'https://huggingface.co/blog/INSAIT-Institute/mamaylm',
+    image: imgBlogV01,
+    source: 'HuggingFace',
+  },
+];
+
+const blogsUk = [
+  {
+    title: 'MamayLM v1.0 — блог про реліз',
+    description:
+      'Детальний розбір MamayLM v1.0: рецепт навчання, бенчмарки та можливості найсильнішої відкритої адаптованої української LLM на момент релізу.',
+    href: 'https://blog.mamaylm.insait.ai/',
+    image: imgBlogV10,
+    source: 'Блог',
+  },
+  {
+    title: 'Представлення MamayLM на HuggingFace',
+    description:
+      'Перший анонс MamayLM на HuggingFace — представлення першої відкритої адаптованої української моделі Gemma та її оцінювання.',
+    href: 'https://huggingface.co/blog/INSAIT-Institute/mamaylm',
+    image: imgBlogV01,
+    source: 'HuggingFace',
+  },
+];
+
+const mediaEn = [
+  {
+    title: 'First AI Chat Application and API Service in Ukraine',
+    description:
+      'MamayLM is featured in the launch of the first AI chat application and API service in Ukraine.',
+    href: 'https://dou.ua/lenta/news/in-ukraine-launch-lapathoniia/',
+    image: imgDouLaunch,
+    source: 'DOU',
+  },
+  {
+    title: 'Ukrainian AI Models Leaderboard',
+    description:
+      'MamayLM topped the Ukrainian LLM leaderboard on release and remains the strongest Ukrainian-adapted language model.',
+    href: 'https://dou.ua/lenta/news/ukrainian-ai-models-leaderboard/',
+    image: imgDouLeaderboard,
+    source: 'DOU',
+  },
+  {
+    title: 'A National Ukrainian LLM Built on Google’s Gemma',
+    description:
+      'Ukraine’s Ministry of Digital Transformation references MamayLM while choosing Gemma as the base for a national Ukrainian LLM.',
+    href: 'https://thedigital.gov.ua/news/technologies/ukrayinsku-llm-natrenuiut-na-modeli-gemma-vid-google',
+    image: imgMintsyfra,
+    source: 'Ministry of Digital Transformation',
+  },
+  {
+    title: 'How the First Adapted Ukrainian LLM Works',
+    description:
+      'Hanna Yukhymenko explains how MamayLM — the first adapted Ukrainian LLM — works, on the AI&I podcast.',
+    href: 'https://youtu.be/gX5jg2yWRww',
+    image: imgPodcast,
+    source: 'AI&I Podcast',
+  },
+];
+
+const mediaUk = [
+  {
+    title: 'Перший в Україні AI-чат та API-сервіс',
+    description:
+      'MamayLM представлено в запуску першого в Україні застосунку для AI-чату та API-сервісу.',
+    href: 'https://dou.ua/lenta/news/in-ukraine-launch-lapathoniia/',
+    image: imgDouLaunch,
+    source: 'DOU',
+  },
+  {
+    title: 'Рейтинг українських AI-моделей',
+    description:
+      'MamayLM очолила рейтинг українських LLM на момент релізу й залишається найсильнішою адаптованою українською мовною моделлю.',
+    href: 'https://dou.ua/lenta/news/ukrainian-ai-models-leaderboard/',
+    image: imgDouLeaderboard,
+    source: 'DOU',
+  },
+  {
+    title: 'Національну українську LLM навчать на моделі Gemma від Google',
+    description:
+      'Міністерство цифрової трансформації згадує MamayLM при виборі Gemma як основи для національної української LLM.',
+    href: 'https://thedigital.gov.ua/news/technologies/ukrayinsku-llm-natrenuiut-na-modeli-gemma-vid-google',
+    image: imgMintsyfra,
+    source: 'Мінцифра',
+  },
+  {
+    title: 'Як працює перша адаптована українська LLM?',
+    description:
+      'Ганна Юхименко розповідає, як працює MamayLM — перша адаптована українська LLM — у подкасті AI&I.',
+    href: 'https://youtu.be/gX5jg2yWRww',
+    image: imgPodcast,
+    source: 'AI&I подкаст',
   },
 ];
 ---
@@ -88,6 +187,46 @@ const researchUk = [
       />
       <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {researchUk.map((item) => (
+          <LinkCard {...item} />
+        ))}
+      </div>
+    </div>
+  </WidgetWrapper>
+
+  <!-- Blogs -->
+  <WidgetWrapper containerClass="max-w-7xl mx-auto">
+    <div data-lang-en style="display:none">
+      <Headline title="Blogs" />
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {blogsEn.map((item) => (
+          <LinkCard {...item} />
+        ))}
+      </div>
+    </div>
+    <div data-lang-uk>
+      <Headline title="Блоги" />
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {blogsUk.map((item) => (
+          <LinkCard {...item} />
+        ))}
+      </div>
+    </div>
+  </WidgetWrapper>
+
+  <!-- News / media -->
+  <WidgetWrapper containerClass="max-w-7xl mx-auto">
+    <div data-lang-en style="display:none">
+      <Headline title="In the Media" />
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {mediaEn.map((item) => (
+          <LinkCard {...item} />
+        ))}
+      </div>
+    </div>
+    <div data-lang-uk>
+      <Headline title="У медіа" />
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {mediaUk.map((item) => (
           <LinkCard {...item} />
         ))}
       </div>
