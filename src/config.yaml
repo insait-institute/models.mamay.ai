@@ -8,7 +8,7 @@ site:
 metadata:
   title:
     default: MamayLM
-    template: '%s — MamayLM'
+    template: '%s'
   description: 'State-of-the-art generative AI for the Ukrainian language, created by INSAIT for Ukrainian users, institutions, and organizations.'
   robots:
     index: true
