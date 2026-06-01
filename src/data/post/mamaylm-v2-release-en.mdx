@@ -1,8 +1,8 @@
 ---
 publishDate: 2026-05-28T00:00:00Z
-title: 'Announcing MamayLM v2.0: Open Multimodal LLMs for Ukrainian'
-excerpt: 'MamayLM v2.0 is the first open Gemma-3-based LLM family adapted for the Ukrainian language by INSAIT — with vision-language understanding, long context, and strong instruction-following in Ukrainian and English.'
-image: '~/assets/images/icon-512x512.png'
+title: 'Announcing MamayLM v2.0: Biggest Multimodal LLMs for Ukrainian'
+excerpt: 'We release MamayLM v2.0 in two sizes — 12B and 27B — cost-efficient, fast, multimodal models that are strong in both Ukrainian and English. Built on Gemma 3, they outpace open models of similar size while matching or beating much larger ones.'
+image: '~/assets/images/blog/mamaylm-v2-overall.png'
 category: 'Release'
 tags:
   - MamayLM
@@ -14,19 +14,95 @@ author: 'INSAIT'
 lang: 'en'
 ---
 
-Today INSAIT is releasing **MamayLM v2.0**, the first open multimodal LLM family adapted for the Ukrainian language. MamayLM v2.0 is built on top of Google's **Gemma 3** and combines strong instruction-following in Ukrainian and English with vision-language understanding and long context.
+import { Image } from 'astro:assets';
+import overall from '~/assets/images/blog/mamaylm-v2-overall.png';
+import logprob from '~/assets/images/blog/mamaylm-v2-logprob.png';
+import zno from '~/assets/images/blog/mamaylm-v2-zno.png';
+import generative from '~/assets/images/blog/mamaylm-v2-generative.png';
+import multimodal from '~/assets/images/blog/mamaylm-v2-multimodal.png';
 
-## What's in the release
+We are delighted to announce the release of **MamayLM v2.0**, an updated state-of-the-art LLM targeting the Ukrainian language. We are releasing the model in two sizes — **12B and 27B** — both of which are cost-efficient, fast, multimodal, and effective in both Ukrainian and English. Based on Gemma 3, the models come with strong capabilities outpacing open models of similar sizes in both languages, while matching or favourably comparing against much larger models.
 
-- **Model:** `INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1` on [HuggingFace](https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1)
-- **Base:** `google/gemma-3-27b-it`
-- **Context:** up to 65,536 tokens (base model supports 131,072)
-- **Capabilities:** text generation, instruction following, tool calling, vision (image understanding), multi-turn conversations
+MamayLM is a result of the research done at the INSAIT Institute. Since our initial MamayLM v1.0 release, the model has seen wide adoption with over 30,000 downloads and many positive reviews, providing the foundation for this continued multilingual development. The new version brings the following updates:
+
+1. **Improved Ukrainian capabilities:** The 12B model has been further fine-tuned with an expanded and higher-quality Ukrainian dataset, resulting in stronger language understanding, generation fluency, and instruction-following in Ukrainian compared to v1.0.
+
+2. **Larger 27B model:** MamayLM v2.0 introduces the largest Ukrainian open model release with its new 27B parameter model, offering the strongest Ukrainian-focused performance across adapted models, coherence, and efficiency on complex tasks, while maintaining strong bilingual Ukrainian and English capabilities.
+
+3. **Multimodality:** The model continues to support multiple modalities, including text and images, enabling a wide range of applications and use cases in both English and Ukrainian (with improved performance). Both sizes demonstrate strong visual question answering capabilities, including understanding questions with images about localized Ukrainian context.
+
+4. **Improved everyday usage:** Training of the new version puts more focus on the common usage cases of the model — chat, tool calling and machine translation. We enriched our post-training data to address these domains and improve MamayLM v2.0 efficiency for these common tasks.
+
+## Improved Continual Pre-Training
+
+Our previous MamayLM v0.1 and v1.0 releases have shown positive efforts towards mitigating catastrophic forgetting when adapting the model to a bilingual setup, as shown on other languages before (BgGPT, Alexandrov et al. [\[1\]](https://aclanthology.org/2024.findings-emnlp.1000/)). In this version, we have added some important upgrades to our data preprocessing pipeline, introduced in BgGPT 3.0 and adapted for Ukrainian, with newer data sources and a more complex curation pipeline, providing stronger downstream performance of our base models.
+
+### Enriching and Curating the Ukrainian Web Data
+
+In previous versions, we relied on already-curated web datasets such as FineWeb2, Malyuk, and Kobza. While these provided a strong starting point, they lacked quality filtering specifically adapted to Ukrainian, and offered no direct control over deduplication. For v2.0, we built our own pipeline from the ground up.
+
+For v2.0 we utilize Kobza as well as the more recent FinePDFs, containing high-quality Ukrainian data from documents. We apply exact and fuzzy deduplication, followed by a filtering stage using JQL annotations based on Snowflake embeddings — producing quality signals well-suited to Ukrainian text. The resulting web data corpus consists of 58M documents and 85B training tokens.
+
+We then apply a rehydration step, intentionally repeating high-quality documents to maximize their contribution to training. To prevent catastrophic forgetting, we still include a small proportion of English-centric data, such as English Wikipedia, Smoltalk and Mixture of Thoughts. In the end, we conducted our continual pretraining stage on 105B training tokens.
+
+### Pre-training Data Construction
+
+Compared to v1.0, the new version is optimized to handle longer context lengths, allowing it to better understand and generate text with more complex dependencies and relationships. This enables processing and reasoning over much larger documents, or multiple documents simultaneously, in a single pass. Beyond simply extending context length, we have modified the construction logic of our training sequences to preserve long-context capabilities while mitigating cross-document interference and catastrophic forgetting. We apply several techniques for this:
+
+**Document clustering.** We cluster documents based on 320 centroids through their Snowflake embeddings. This allows us to construct multi-document sequences that only include documents from the same cluster. This reduces hallucinations in real-world use, while closing the domain gap and reinforcing long-context learning.
+
+**Best-fit packing.** Similarly to previous versions, during pretraining we used best-fit packing to pack sequences at the desired context length, preserving data structure and coherence with minimal disruption. This approach enhances context learning and improves language reasoning capabilities.
+
+## Post-Training and Alignment
+
+In the updated version, we have aligned our post-training dataset towards common use cases for MamayLM.
+
+### SFT Data Sourcing
+
+The post-training pipeline follows the same approach as v1.0, with the same synthetic QA generation, translation pipeline, and open-source dataset mix. Our instruction-tuning dataset incorporates various open-source datasets, such as the Nemotron SFT and Post-Training datasets, the OpenCoder (OPC) SFT dataset, the Aya Collection and more. We acknowledge the significant contributions of the Ukrainian open-source community, particularly the creators of Spivavtor, UAlpaca, UA-Squad, Ukrainian StackExchange, the Crimean Tatar Parallel Corpora, the Crimean Tatar Books collection (synthetic QA) and UA-Lawyer QA, which amplify the potential of Ukrainian post-training.
+
+The key addition in v2.0 comes from user feedback collected since the v1.0 release. We identified that machine translation and function calling were areas where Ukrainian-specific data would meaningfully improve performance. To address this, we incorporated the translated Hermes 3 and FiftyFive-Best datasets, targeting these tasks directly.
+
+### Model Merging
+
+As in v1.0, we train English- and Ukrainian-focused instruction-tuned models separately before combining them into a final unified model. This approach lets us target each language with dedicated data, improving performance on both. We apply an advanced model merging technique to more precisely extract linguistic capabilities, informed by findings on language imbalances and model merging [\[1\]](https://aclanthology.org/2024.findings-emnlp.1000/), which highlight the impact of data mixing proportions on model performance.
+
+## Evaluation Results
+
+We follow the same set of benchmarks as in previous v0.1 and v1.0 versions for both English and Ukrainian, where Ukrainian translations provide higher quality and evaluation robustness. The updated 12B version shows improvements on Ukrainian tests and more focused alignment, while the 27B variant outperforms much bigger and newer models.
+
+<Image src={overall} alt="MamayLM v2.0 overall performance on English and Ukrainian benchmarks" widths={[400, 900]} sizes="(max-width: 900px) 400px, 900px" />
+
+### MCQ Performance
+
+We observe strong performance on pre-training (log-probability) benchmarks for both English and Ukrainian, outperforming models up to 9x their size, including Qwen 3 and Qwen 3.5 alternatives released months later than Gemma 3.
+
+<Image src={logprob} alt="MamayLM v2.0 performance on log-probability (MCQ) tasks" widths={[400, 900]} sizes="(max-width: 900px) 400px, 900px" />
+
+Moreover, v2.0 improves on Ukrainian alignment and knowledge, showing even higher results on the ZNO benchmark.
+
+<Image src={zno} alt="MamayLM v2.0 results on Ukrainian Mandatory High-School Exams (ZNO)" widths={[400, 900]} sizes="(max-width: 900px) 400px, 900px" />
+
+### Generative Capabilities
+
+Similarly to base performance, we observe strong efficiency on generative tasks, including open-answer QA, math and instruction following.
+
+<Image src={generative} alt="MamayLM v2.0 performance on generative tasks" widths={[400, 900]} sizes="(max-width: 900px) 400px, 900px" />
+
+### Multimodal Performance
+
+Compared to the previous v1.0 version, we also observe improved multimodal capabilities. Together with the new 27B size, MamayLM now shows particularly strong performance on vision+text tasks, including MMMU and MMZNO. Without having image-text paired training data, the updated models manage to improve on and outperform their base Gemma 3 variants thanks to stronger language-module performance. These enhanced multimodal capabilities open up new possibilities for applications that require understanding and generating content based on both text and visual inputs — useful in administrative adoption and various other use cases.
+
+<Image src={multimodal} alt="MamayLM v2.0 multimodal performance on MMMU (EN) and MMZNO (UKR)" widths={[400, 900]} sizes="(max-width: 900px) 400px, 900px" />
+
+INSAIT thanks Google for its continued support, both in terms of the GCP credits needed to train the MamayLM models, as well as the donations needed for work beyond training.
 
 ## How to try it
 
 - **Chat:** [mamay.ai](https://mamay.ai) — talk to MamayLM in the browser.
 - **API:** OpenAI-compatible. See the [documentation](/docs).
-- **Self-host:** weights and instructions on [HuggingFace](https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1).
+- **Self-host:** weights and instructions on [HuggingFace](https://huggingface.co/INSAIT-Institute).
 
-A full technical write-up and benchmark report will follow.
+## References
+
+1. Mitigating Catastrophic Forgetting in Language Transfer via Model Merging. Alexandrov et al., 2024. *Findings of the Association for Computational Linguistics: EMNLP 2024*, pp. 17167–17186. [link](https://aclanthology.org/2024.findings-emnlp.1000/)
