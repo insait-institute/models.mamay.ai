@@ -22,6 +22,8 @@ export interface Post {
   excerpt?: string;
   /**  */
   image?: ImageMetadata | string;
+  /** Optional dark-theme variant of the cover image. */
+  imageDark?: ImageMetadata | string;
 
   /**  */
   category?: Taxonomy;

@@ -13,6 +13,7 @@ export interface Props {
 
 const { post } = Astro.props;
 const image = await findImage(post.image);
+const imageDark = await findImage(post.imageDark);
 
 const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : '';
 ---
@@ -23,8 +24,31 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
   <div class="overflow-hidden bg-gray-400 dark:bg-slate-700 rounded shadow-lg mb-6">
     {
       image &&
-        (link ? (
-          <a href={link}>
+        (() => {
+          const cover = imageDark ? (
+            <>
+              <Image
+                src={image}
+                class="dark:hidden w-full rounded shadow-lg bg-gray-400 dark:bg-slate-700"
+                widths={[400, 900]}
+                width={400}
+                sizes="(max-width: 900px) 400px, 900px"
+                alt={post.title}
+                loading="lazy"
+                decoding="async"
+              />
+              <Image
+                src={imageDark}
+                class="hidden dark:block w-full rounded shadow-lg bg-gray-400 dark:bg-slate-700"
+                widths={[400, 900]}
+                width={400}
+                sizes="(max-width: 900px) 400px, 900px"
+                alt={post.title}
+                loading="lazy"
+                decoding="async"
+              />
+            </>
+          ) : (
             <Image
               src={image}
               class="w-full rounded shadow-lg bg-gray-400 dark:bg-slate-700"
@@ -35,19 +59,9 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
               loading="lazy"
               decoding="async"
             />
-          </a>
-        ) : (
-          <Image
-            src={image}
-            class="w-full rounded shadow-lg bg-gray-400 dark:bg-slate-700"
-            widths={[400, 900]}
-            width={400}
-            sizes="(max-width: 900px) 400px, 900px"
-            alt={post.title}
-            loading="lazy"
-            decoding="async"
-          />
-        ))
+          );
+          return link ? <a href={link}>{cover}</a> : cover;
+        })()
     }
   </div>
 

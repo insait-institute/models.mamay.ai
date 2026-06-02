@@ -17,6 +17,7 @@ export interface Props {
 
 const { post } = Astro.props;
 const image = (await findImage(post.image)) as ImageMetadata | undefined;
+const imageDark = (await findImage(post.imageDark)) as ImageMetadata | undefined;
 
 const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : '';
 ---
@@ -29,17 +30,42 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
       (link ? (
         <a class="relative block group" href={link ?? 'javascript:void(0)'}>
           <div class="overflow-hidden bg-gray-400 dark:bg-slate-700 rounded shadow-lg">
-            {image && (
-              <Image
-                src={image}
-                class="w-full rounded shadow-lg bg-gray-400 dark:bg-slate-700"
-                widths={[400, 900]}
-                width={900}
-                sizes="(max-width: 900px) 400px, 900px"
-                alt={post.title}
-                loading="lazy"
-                decoding="async"
-              />
+            {imageDark ? (
+              <>
+                <Image
+                  src={image}
+                  class="dark:hidden w-full rounded shadow-lg bg-gray-400 dark:bg-slate-700"
+                  widths={[400, 900]}
+                  width={900}
+                  sizes="(max-width: 900px) 400px, 900px"
+                  alt={post.title}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <Image
+                  src={imageDark}
+                  class="hidden dark:block w-full rounded shadow-lg bg-gray-400 dark:bg-slate-700"
+                  widths={[400, 900]}
+                  width={900}
+                  sizes="(max-width: 900px) 400px, 900px"
+                  alt={post.title}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </>
+            ) : (
+              image && (
+                <Image
+                  src={image}
+                  class="w-full rounded shadow-lg bg-gray-400 dark:bg-slate-700"
+                  widths={[400, 900]}
+                  width={900}
+                  sizes="(max-width: 900px) 400px, 900px"
+                  alt={post.title}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )
             )}
           </div>
         </a>
