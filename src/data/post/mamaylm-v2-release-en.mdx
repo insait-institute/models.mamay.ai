@@ -2,7 +2,7 @@
 publishDate: 2026-05-28T00:00:00Z
 title: 'Announcing MamayLM v2.0: Biggest Multimodal LLMs for Ukrainian'
 excerpt: 'We release MamayLM v2.0 in two sizes — 12B and 27B — cost-efficient, fast, multimodal models that are strong in both Ukrainian and English. Built on Gemma 3, they outpace open models of similar size while matching or beating much larger ones.'
-image: '~/assets/images/blog/mamaylm-v2-overall.png'
+image: '~/assets/images/blog/mamaylm-v2-overall-light.png'
 category: 'Release'
 tags:
   - MamayLM
@@ -14,12 +14,17 @@ author: 'INSAIT'
 lang: 'en'
 ---
 
-import { Image } from 'astro:assets';
-import overall from '~/assets/images/blog/mamaylm-v2-overall.png';
-import logprob from '~/assets/images/blog/mamaylm-v2-logprob.png';
-import zno from '~/assets/images/blog/mamaylm-v2-zno.png';
-import generative from '~/assets/images/blog/mamaylm-v2-generative.png';
-import multimodal from '~/assets/images/blog/mamaylm-v2-multimodal.png';
+import ThemeImage from '~/components/common/ThemeImage.astro';
+import overallLight from '~/assets/images/blog/mamaylm-v2-overall-light.png';
+import overallDark from '~/assets/images/blog/mamaylm-v2-overall-dark.png';
+import logprobLight from '~/assets/images/blog/mamaylm-v2-logprob-light.png';
+import logprobDark from '~/assets/images/blog/mamaylm-v2-logprob-dark.png';
+import znoLight from '~/assets/images/blog/mamaylm-v2-zno-light.png';
+import znoDark from '~/assets/images/blog/mamaylm-v2-zno-dark.png';
+import generativeLight from '~/assets/images/blog/mamaylm-v2-generative-light.png';
+import generativeDark from '~/assets/images/blog/mamaylm-v2-generative-dark.png';
+import multimodalLight from '~/assets/images/blog/mamaylm-v2-multimodal-light.png';
+import multimodalDark from '~/assets/images/blog/mamaylm-v2-multimodal-dark.png';
 
 We are delighted to announce the release of **MamayLM v2.0**, an updated state-of-the-art LLM targeting the Ukrainian language. We are releasing the model in two sizes — **12B and 27B** — both of which are cost-efficient, fast, multimodal, and effective in both Ukrainian and English. Based on Gemma 3, the models come with strong capabilities outpacing open models of similar sizes in both languages, while matching or favourably comparing against much larger models.
 
@@ -71,29 +76,29 @@ As in v1.0, we train English- and Ukrainian-focused instruction-tuned models sep
 
 We follow the same set of benchmarks as in previous v0.1 and v1.0 versions for both English and Ukrainian, where Ukrainian translations provide higher quality and evaluation robustness. The updated 12B version shows improvements on Ukrainian tests and more focused alignment, while the 27B variant outperforms much bigger and newer models.
 
-<Image src={overall} alt="MamayLM v2.0 overall performance on English and Ukrainian benchmarks" widths={[400, 900]} sizes="(max-width: 900px) 400px, 900px" />
+<ThemeImage light={overallLight} dark={overallDark} alt="MamayLM v2.0 overall performance on English and Ukrainian benchmarks" />
 
 ### MCQ Performance
 
 We observe strong performance on pre-training (log-probability) benchmarks for both English and Ukrainian, outperforming models up to 9x their size, including Qwen 3 and Qwen 3.5 alternatives released months later than Gemma 3.
 
-<Image src={logprob} alt="MamayLM v2.0 performance on log-probability (MCQ) tasks" widths={[400, 900]} sizes="(max-width: 900px) 400px, 900px" />
+<ThemeImage light={logprobLight} dark={logprobDark} alt="MamayLM v2.0 performance on log-probability (MCQ) tasks" />
 
 Moreover, v2.0 improves on Ukrainian alignment and knowledge, showing even higher results on the ZNO benchmark.
 
-<Image src={zno} alt="MamayLM v2.0 results on Ukrainian Mandatory High-School Exams (ZNO)" widths={[400, 900]} sizes="(max-width: 900px) 400px, 900px" />
+<ThemeImage light={znoLight} dark={znoDark} alt="MamayLM v2.0 results on Ukrainian Mandatory High-School Exams (ZNO)" />
 
 ### Generative Capabilities
 
 Similarly to base performance, we observe strong efficiency on generative tasks, including open-answer QA, math and instruction following.
 
-<Image src={generative} alt="MamayLM v2.0 performance on generative tasks" widths={[400, 900]} sizes="(max-width: 900px) 400px, 900px" />
+<ThemeImage light={generativeLight} dark={generativeDark} alt="MamayLM v2.0 performance on generative tasks" />
 
 ### Multimodal Performance
 
 Compared to the previous v1.0 version, we also observe improved multimodal capabilities. Together with the new 27B size, MamayLM now shows particularly strong performance on vision+text tasks, including MMMU and MMZNO. Without having image-text paired training data, the updated models manage to improve on and outperform their base Gemma 3 variants thanks to stronger language-module performance. These enhanced multimodal capabilities open up new possibilities for applications that require understanding and generating content based on both text and visual inputs — useful in administrative adoption and various other use cases.
 
-<Image src={multimodal} alt="MamayLM v2.0 multimodal performance on MMMU (EN) and MMZNO (UKR)" widths={[400, 900]} sizes="(max-width: 900px) 400px, 900px" />
+<ThemeImage light={multimodalLight} dark={multimodalDark} alt="MamayLM v2.0 multimodal performance on MMMU (EN) and MMZNO (UKR)" />
 
 INSAIT thanks Google for its continued support, both in terms of the GCP credits needed to train the MamayLM models, as well as the donations needed for work beyond training.
 
