@@ -11,6 +11,11 @@ const apiServer = 'https://api.mamay.ai';
 const apiModel = 'mamaylm-gemma-3-27b-fp8';
 const apiAccessHref = 'mailto:chat.mamay@insait.ai?subject=API%20Access';
 
+const hfModel = 'INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v2.0';
+const hfModel12b = 'INSAIT-Institute/MamayLM-Gemma-3-12B-IT-v2.0';
+const hfModelUrl = `https://huggingface.co/${hfModel}`;
+const hfModel12bUrl = `https://huggingface.co/${hfModel12b}`;
+
 const proseClasses = 'prose prose-md lg:prose-xl dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-a:text-primary dark:prose-a:text-blue-400 prose-img:rounded-md prose-img:shadow-lg prose-headings:scroll-mt-[180px] prose-li:my-0 prose-code:before:content-none prose-code:after:content-none prose-h2:border-t prose-h2:border-gray-200 prose-h2:dark:border-slate-700 prose-h2:pt-8 prose-h2:mt-12 prose-h2:text-2xl prose-h2:lg:text-3xl prose-h3:text-lg prose-h3:lg:text-xl prose-h3:text-muted prose-h3:dark:text-slate-400';
 ---
 
@@ -33,6 +38,8 @@ const proseClasses = 'prose prose-md lg:prose-xl dark:prose-invert dark:prose-he
           <a href="#streaming" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Streaming</a>
           <a href="#tool-calling" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Tool Calling</a>
           <a href="#vision" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Vision</a>
+          <a href="#transformers" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Transformers</a>
+          <a href="#vllm" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">vLLM</a>
           <a href="#model-info" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Model Info</a>
         </nav>
       </div>
@@ -200,9 +207,98 @@ response = client.chat.completions.create(
     max_tokens=1024,
 )`} lang="python" theme="github-dark" />
 
+        <h2 id="transformers">Run with HuggingFace Transformers</h2>
+        <p>MamayLM v2.0 is available on HuggingFace in <strong>27B</strong> (<a href={hfModelUrl}>{hfModel}</a>) and <strong>12B</strong> (<a href={hfModel12bUrl}>{hfModel12b}</a>) sizes. It is a Gemma 3 model, so load it with <code>Gemma3ForConditionalGeneration</code> and <code>AutoProcessor</code>.</p>
+
+        <Code code="pip install -U transformers accelerate torch" lang="bash" theme="github-dark" />
+
+        <h3>Text generation</h3>
+        <Code code={`from transformers import AutoProcessor, Gemma3ForConditionalGeneration
+import torch
+
+model_id = "${hfModel}"
+
+processor = AutoProcessor.from_pretrained(model_id)
+model = Gemma3ForConditionalGeneration.from_pretrained(
+    model_id, device_map="auto"
+).eval()
+
+messages = [
+    {
+        "role": "user",
+        "content": [{"type": "text", "text": "When was the University of Kyiv founded?"}],
+    },
+]
+
+inputs = processor.apply_chat_template(
+    messages, add_generation_prompt=True, tokenize=True,
+    return_dict=True, return_tensors="pt"
+).to(model.device, dtype=torch.bfloat16)
+
+input_len = inputs["input_ids"].shape[-1]
+
+with torch.inference_mode():
+    generation = model.generate(**inputs, max_new_tokens=512, do_sample=True, temperature=0.2)
+    generation = generation[0][input_len:]
+
+print(processor.decode(generation, skip_special_tokens=True))`} lang="python" theme="github-dark" />
+
+        <h3>With an image</h3>
+        <Code code={`messages = [
+    {
+        "role": "user",
+        "content": [
+            {"type": "image", "image": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/bee.jpg"},
+            {"type": "text", "text": "Describe what you see in the image."},
+        ],
+    },
+]
+
+inputs = processor.apply_chat_template(
+    messages, add_generation_prompt=True, tokenize=True,
+    return_dict=True, return_tensors="pt"
+).to(model.device, dtype=torch.bfloat16)
+
+input_len = inputs["input_ids"].shape[-1]
+
+with torch.inference_mode():
+    generation = model.generate(**inputs, max_new_tokens=512, do_sample=True, temperature=0.2)
+    generation = generation[0][input_len:]
+
+print(processor.decode(generation, skip_special_tokens=True))`} lang="python" theme="github-dark" />
+
+        <h2 id="vllm">Run with vLLM</h2>
+        <p>vLLM gives you fast batched inference and an OpenAI-compatible server for self-hosting.</p>
+
+        <Code code="pip install vllm" lang="bash" theme="github-dark" />
+
+        <h3>Python</h3>
+        <Code code={`from vllm import LLM, SamplingParams
+
+llm = LLM(model="${hfModel}")
+params = SamplingParams(max_tokens=512, temperature=0.2)
+
+messages = [
+    {
+        "role": "user",
+        "content": [{"type": "text", "text": "When was the University of Kyiv founded?"}],
+    },
+]
+
+outputs = llm.chat(messages, sampling_params=params)
+print(outputs[0].outputs[0].text)`} lang="python" theme="github-dark" />
+
+        <h3>OpenAI-compatible server</h3>
+        <Code code={`vllm serve ${hfModel}`} lang="bash" theme="github-dark" />
+        <p>This exposes an OpenAI-compatible endpoint at <code>http://localhost:8000/v1</code>. Query it exactly like the <a href="#chat-completions">Chat Completions</a> examples above — just point <code>base_url</code> there.</p>
+
+        <h3>FP8 for faster inference</h3>
+        <p><strong>Do not</strong> use vLLM's on-the-fly <code>quantization="fp8"</code> flag with the base model — it silently quantizes the vision tower and multi-modal projector, producing garbage outputs on image inputs. For ~2× memory reduction with vision preserved, serve the FP8 dynamic variant instead:</p>
+        <Code code={`vllm serve ${hfModel}-FP8-dynamic`} lang="bash" theme="github-dark" />
+
         <h2 id="model-info">Model Information</h2>
         <ul>
-          <li><a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1">MamayLM-Gemma-3-27B-IT</a> (based on <a href="https://huggingface.co/google/gemma-3-27b-it">gemma-3-27b-it</a>)</li>
+          <li><a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v2.0">MamayLM-Gemma-3-27B-IT</a> (based on <a href="https://huggingface.co/google/gemma-3-27b-it">gemma-3-27b-it</a>)</li>
           <li>FP8 dynamic quantization &mdash; uses about half the memory for weights compared to BF16, with minimal quality loss</li>
           <li>65,536 tokens context window (the base model supports up to 131,072)</li>
           <li><strong>Capabilities:</strong>
@@ -221,7 +317,7 @@ response = client.chat.completions.create(
         <ul>
           <li>The API is OpenAI-compatible. Any SDK or framework that supports OpenAI (LangChain, LlamaIndex, etc.) works with MamayLM by changing <code>base_url</code> and <code>api_key</code>.</li>
           <li>To request API access, write to <a href={apiAccessHref}>chat.mamay@insait.ai</a>.</li>
-          <li>To run the model locally, see the <a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1">HuggingFace model card</a>.</li>
+          <li>To run the model locally, see the <a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v2.0">HuggingFace model card</a>.</li>
         </ul>
       </div>
     </div>
@@ -242,6 +338,8 @@ response = client.chat.completions.create(
           <a href="#streaming-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Стрімінг</a>
           <a href="#tool-calling-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Функції</a>
           <a href="#vision-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Зображення</a>
+          <a href="#transformers-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Transformers</a>
+          <a href="#vllm-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">vLLM</a>
           <a href="#model-info-uk" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors">Модель</a>
         </nav>
       </div>
@@ -409,9 +507,98 @@ response = client.chat.completions.create(
     max_tokens=1024,
 )`} lang="python" theme="github-dark" />
 
+        <h2 id="transformers-uk">Запуск із HuggingFace Transformers</h2>
+        <p>MamayLM v2.0 доступна на HuggingFace у розмірах <strong>27B</strong> (<a href={hfModelUrl}>{hfModel}</a>) та <strong>12B</strong> (<a href={hfModel12bUrl}>{hfModel12b}</a>). Це модель Gemma 3, тож завантажуйте її через <code>Gemma3ForConditionalGeneration</code> та <code>AutoProcessor</code>.</p>
+
+        <Code code="pip install -U transformers accelerate torch" lang="bash" theme="github-dark" />
+
+        <h3>Генерація тексту</h3>
+        <Code code={`from transformers import AutoProcessor, Gemma3ForConditionalGeneration
+import torch
+
+model_id = "${hfModel}"
+
+processor = AutoProcessor.from_pretrained(model_id)
+model = Gemma3ForConditionalGeneration.from_pretrained(
+    model_id, device_map="auto"
+).eval()
+
+messages = [
+    {
+        "role": "user",
+        "content": [{"type": "text", "text": "Коли був заснований Київський університет?"}],
+    },
+]
+
+inputs = processor.apply_chat_template(
+    messages, add_generation_prompt=True, tokenize=True,
+    return_dict=True, return_tensors="pt"
+).to(model.device, dtype=torch.bfloat16)
+
+input_len = inputs["input_ids"].shape[-1]
+
+with torch.inference_mode():
+    generation = model.generate(**inputs, max_new_tokens=512, do_sample=True, temperature=0.2)
+    generation = generation[0][input_len:]
+
+print(processor.decode(generation, skip_special_tokens=True))`} lang="python" theme="github-dark" />
+
+        <h3>Із зображенням</h3>
+        <Code code={`messages = [
+    {
+        "role": "user",
+        "content": [
+            {"type": "image", "image": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/bee.jpg"},
+            {"type": "text", "text": "Опиши, що ти бачиш на зображенні."},
+        ],
+    },
+]
+
+inputs = processor.apply_chat_template(
+    messages, add_generation_prompt=True, tokenize=True,
+    return_dict=True, return_tensors="pt"
+).to(model.device, dtype=torch.bfloat16)
+
+input_len = inputs["input_ids"].shape[-1]
+
+with torch.inference_mode():
+    generation = model.generate(**inputs, max_new_tokens=512, do_sample=True, temperature=0.2)
+    generation = generation[0][input_len:]
+
+print(processor.decode(generation, skip_special_tokens=True))`} lang="python" theme="github-dark" />
+
+        <h2 id="vllm-uk">Запуск із vLLM</h2>
+        <p>vLLM забезпечує швидкий пакетний інференс та OpenAI-сумісний сервер для локального розгортання.</p>
+
+        <Code code="pip install vllm" lang="bash" theme="github-dark" />
+
+        <h3>Python</h3>
+        <Code code={`from vllm import LLM, SamplingParams
+
+llm = LLM(model="${hfModel}")
+params = SamplingParams(max_tokens=512, temperature=0.2)
+
+messages = [
+    {
+        "role": "user",
+        "content": [{"type": "text", "text": "Коли був заснований Київський університет?"}],
+    },
+]
+
+outputs = llm.chat(messages, sampling_params=params)
+print(outputs[0].outputs[0].text)`} lang="python" theme="github-dark" />
+
+        <h3>OpenAI-сумісний сервер</h3>
+        <Code code={`vllm serve ${hfModel}`} lang="bash" theme="github-dark" />
+        <p>Це піднімає OpenAI-сумісний ендпоінт на <code>http://localhost:8000/v1</code>. Звертайтеся до нього так само, як у прикладах <a href="#chat-completions-uk">Чат</a> вище — лише вкажіть туди <code>base_url</code>.</p>
+
+        <h3>FP8 для швидшого інференсу</h3>
+        <p><strong>Не</strong> використовуйте прапорець vLLM <code>quantization="fp8"</code> з базовою моделлю — він непомітно квантизує візуальну вежу та мультимодальний проєктор, що призводить до некоректних відповідей на зображення. Для зменшення пам’яті приблизно вдвічі зі збереженням зору запускайте натомість FP8 dynamic варіант:</p>
+        <Code code={`vllm serve ${hfModel}-FP8-dynamic`} lang="bash" theme="github-dark" />
+
         <h2 id="model-info-uk">Інформація про модель</h2>
         <ul>
-          <li><a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1">MamayLM-Gemma-3-27B-IT</a> (на основі <a href="https://huggingface.co/google/gemma-3-27b-it">gemma-3-27b-it</a>)</li>
+          <li><a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v2.0">MamayLM-Gemma-3-27B-IT</a> (на основі <a href="https://huggingface.co/google/gemma-3-27b-it">gemma-3-27b-it</a>)</li>
           <li>FP8 dynamic квантизація — використовує приблизно вдвічі менше пам’яті для ваг порівняно з BF16, з мінімальною втратою якості</li>
           <li>Контекст 65 536 токенів (базова модель підтримує до 131 072)</li>
           <li><strong>Можливості:</strong>
@@ -430,7 +617,7 @@ response = client.chat.completions.create(
         <ul>
           <li>API повністю сумісний з OpenAI. Будь-який SDK або фреймворк, що підтримує OpenAI (LangChain, LlamaIndex тощо), працює з MamayLM — достатньо змінити <code>base_url</code> та <code>api_key</code>.</li>
           <li>Щоб отримати доступ до API, напишіть на <a href={apiAccessHref}>chat.mamay@insait.ai</a>.</li>
-          <li>Для локального запуску моделі дивіться <a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v0.1">сторінку моделі на HuggingFace</a>.</li>
+          <li>Для локального запуску моделі дивіться <a href="https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v2.0">сторінку моделі на HuggingFace</a>.</li>
         </ul>
       </div>
     </div>
