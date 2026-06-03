@@ -1,6 +1,6 @@
 site:
   name: MamayLM
-  site: 'https://verbose-broccoli-4qw8p7o.pages.github.io'
+  site: 'https://models.mamay.ai'
   base: '/'
   trailingSlash: false
 
