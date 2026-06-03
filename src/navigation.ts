@@ -19,7 +19,7 @@ export const headerData = {
 };
 
 const huggingFaceHref =
-  'https://huggingface.co/INSAIT-Institute/MamayLM-Gemma-3-27B-IT-v2.0';
+  'https://huggingface.co/collections/INSAIT-Institute/mamaylm-v20-gemma-3';
 
 export const footerDataEn = {
   links: [
