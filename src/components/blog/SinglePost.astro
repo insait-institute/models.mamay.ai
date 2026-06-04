@@ -4,6 +4,7 @@ import { Icon } from 'astro-icon/components';
 import Image from '~/components/common/Image.astro';
 import PostTags from '~/components/blog/Tags.astro';
 import SocialShare from '~/components/common/SocialShare.astro';
+import Button from '~/components/ui/Button.astro';
 
 import { getPermalink } from '~/utils/permalinks';
 import { getFormattedDate } from '~/utils/utils';
@@ -16,6 +17,12 @@ export interface Props {
 }
 
 const { post, url } = Astro.props;
+
+const chatHref = 'https://mamay.ai';
+const cta =
+  post.lang === 'uk'
+    ? { text: 'Спробуйте MamayLM прямо зараз', button: 'Mamay AI Chat' }
+    : { text: 'Try MamayLM for yourself right now', button: 'Mamay AI Chat' };
 ---
 
 <section class="py-8 sm:py-16 lg:py-20 mx-auto">
@@ -78,6 +85,23 @@ const { post, url } = Astro.props;
       >
         {post.excerpt}
       </p>
+
+      <div class="max-w-3xl mx-auto mb-8 px-4 sm:px-6">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-xl shadow-lg"
+          style="background: linear-gradient(135deg, #0A66E0 0%, #4d8def 100%);"
+        >
+          <p class="text-lg sm:text-xl font-semibold text-white">{cta.text}</p>
+          <Button
+            variant="primary"
+            text={cta.button}
+            href={chatHref}
+            icon="tabler:message-chatbot"
+            target="_blank"
+            class="flex-shrink-0 whitespace-nowrap !bg-white !text-primary !border-white hover:!bg-gray-100"
+          />
+        </div>
+      </div>
 
       {
         post.image ? (
